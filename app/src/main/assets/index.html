@@ -14,6 +14,7 @@ html{color-scheme:light}body{margin:0}
   --ground:#EEF1F5; --surface:#FFFFFF; --ink:#141A2A; --muted:#5A6275; --line:#D5DAE3;
   --concert:#0B6E78; --concert-soft:#DDF0F1;
   --comedy:#C2410C; --comedy-soft:#FBE6DA;
+  --movie:#6D28D9; --movie-soft:#EDE7FB;
   --accent:#0B6E78; --focus:#2563EB;
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Figtree", "Segoe UI", system-ui, sans-serif;
@@ -23,14 +24,14 @@ html{color-scheme:light}body{margin:0}
   :root:not([data-theme="light"]){
     color-scheme:dark;
     --ground:#0F131C; --surface:#171C28; --ink:#E8ECF3; --muted:#9AA3B5; --line:#2A3142;
-    --concert:#4FC3CD; --concert-soft:#12343A; --comedy:#FB8B52; --comedy-soft:#3B2216;
+    --concert:#4FC3CD; --concert-soft:#12343A; --comedy:#FB8B52; --comedy-soft:#3B2216; --movie:#B69CFF; --movie-soft:#2A2143;
     --accent:#4FC3CD; --focus:#7AA7FF;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
   --ground:#0F131C; --surface:#171C28; --ink:#E8ECF3; --muted:#9AA3B5; --line:#2A3142;
-  --concert:#4FC3CD; --concert-soft:#12343A; --comedy:#FB8B52; --comedy-soft:#3B2216;
+  --concert:#4FC3CD; --concert-soft:#12343A; --comedy:#FB8B52; --comedy-soft:#3B2216; --movie:#B69CFF; --movie-soft:#2A2143;
   --accent:#4FC3CD; --focus:#7AA7FF;
 }
 *{box-sizing:border-box}
@@ -48,7 +49,8 @@ h1 .amp{color:var(--comedy)}
 .stamp b{color:var(--ink);font-weight:600}
 .tally{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 0;font-family:var(--mono);font-size:13px;color:var(--muted)}
 .tally span b{color:var(--ink);font-variant-numeric:tabular-nums}
-.layout{display:grid;grid-template-columns:230px 1fr;gap:32px;margin-top:24px;align-items:start}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+.layout>*{min-width:0}
 aside.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:20px}
 .fgroup{display:flex;flex-direction:column;gap:8px}
 .flabel{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
@@ -74,6 +76,15 @@ input[type=search],select{font:inherit;color:var(--ink);background:var(--surface
 .tag{font-family:var(--mono);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:4px}
 .tag.concert{background:var(--concert-soft);color:var(--concert)}
 .tag.comedy{background:var(--comedy-soft);color:var(--comedy)}
+.tag.movie{background:var(--movie-soft);color:var(--movie)}
+.rating{font-family:var(--mono);font-size:10.5px;font-weight:600;border:1px solid var(--line);border-radius:4px;padding:2px 6px;color:var(--ink)}
+.stub .now{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--movie)}
+.tabs{display:flex;gap:4px;margin-top:18px;border-bottom:1px solid var(--line)}
+.tab{font:600 15px/1 var(--body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:12px 14px 11px;margin-bottom:-1px;cursor:pointer}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tab .n{font-family:var(--mono);font-size:11px;opacity:.7;margin-left:6px}
+[hidden]{display:none!important}
 .title{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.25;margin:4px 0 2px;overflow-wrap:anywhere}
 .note{font-size:13px;color:var(--muted);margin:2px 0 0;max-width:62ch}
 .side{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:8px;padding:14px 16px 14px 0;text-align:right}
@@ -91,7 +102,7 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
 @keyframes sh{from{background-position:200% 0}to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.sk{animation:none}}
 @media (max-width:760px){
-  .layout{grid-template-columns:1fr;gap:20px}
+  .layout{grid-template-columns:minmax(0,1fr);gap:20px}
   aside.filters{position:static}
   .ev{grid-template-columns:60px 1fr}
   .side{grid-column:2;flex-direction:row;justify-content:space-between;align-items:center;padding:0 12px 14px 0;text-align:left}
@@ -106,13 +117,17 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
     <div>
       <h1>Live in the Emirates<span class="amp">.</span></h1>
          <p style="margin:6px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted)">Created by Abhisek</p>
-      <p class="sub">Upcoming concerts and stand-up comedy in Dubai, Abu Dhabi and Sharjah, checked against listings every morning.</p>
+      <p class="sub">Upcoming concerts, stand-up comedy and movies in Dubai, Abu Dhabi and Sharjah, checked against listings every morning.</p>
     </div>
     <div class="stampwrap"><div class="stamp" id="stamp">Loading listings…</div><button class="btn" id="refresh" type="button">Refresh</button><div class="rstatus" id="rstatus" role="status" aria-live="polite"></div></div>
   </header>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-live" data-tab="live" aria-controls="view-live" aria-selected="true">Concerts &amp; Comedy<span class="n" id="n-live"></span></button>
+    <button class="tab" role="tab" id="tab-movies" data-tab="movies" aria-controls="view-movies" aria-selected="false">Movies<span class="n" id="n-movies"></span></button>
+  </nav>
   <div class="tally" id="tally"></div>
 
-  <div class="layout">
+  <div class="layout" id="view-live" role="tabpanel" aria-labelledby="tab-live">
     <aside class="filters" aria-label="Filters">
       <div class="fgroup">
         <label class="flabel" for="q">Search</label>
@@ -141,21 +156,49 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
     </main>
   </div>
 
+  <div class="layout" id="view-movies" role="tabpanel" aria-labelledby="tab-movies" hidden>
+    <aside class="filters" aria-label="Movie filters">
+      <div class="fgroup">
+        <label class="flabel" for="mq">Search</label>
+        <input type="search" id="mq" placeholder="Movie title or genre">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Showing</span>
+        <div class="chips" id="m-status"></div>
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="m-lang">Language</label>
+        <select id="m-lang"></select>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Your list</span>
+        <div class="chips"><button class="chip" id="m-saved" aria-pressed="false">Saved only</button></div>
+      </div>
+    </aside>
+    <main id="mout">
+      <div class="list" aria-hidden="true"><div class="sk" style="border-top:0"></div><div class="sk"></div><div class="sk"></div></div>
+    </main>
+  </div>
+
   <footer>
-    Dates, venues and prices come from promoter, venue and ticketing listings (Platinumlist, Ticketmaster, Live Nation, venue sites, Songkick). "From" prices are the lowest listed tier in AED; figures marked ≈ were converted from USD. Always confirm on the ticket page before booking. Saved events stay on this phone.
+    Dates, venues and prices come from promoter, venue and ticketing listings (Platinumlist, Ticketmaster, Live Nation, venue sites, Songkick). "From" prices are the lowest listed tier in AED; figures marked ≈ were converted from USD. Movies come from UAE cinema listings (VOX Cinemas); most titles also play at Reel, Novo and Roxy. Release dates can shift, so check showtimes before you go. Saved items stay on this phone.
   </footer>
 </div>
 
 <script src="snapshot.js"></script>
+<script src="movies-snapshot.js"></script>
 <script>
 (function(){
   const TZ = "Asia/Dubai";
   const CITIES = ["All","Dubai","Abu Dhabi","Sharjah"];
   const TYPES = [["all","All"],["concert","Concerts"],["comedy","Comedy"]];
   const state = { city:"All", type:"all", when:"all", q:"", saved:false, events:[], meta:null, loaded:false, error:null };
-  let saved = new Set();
+  const mv = { status:"all", lang:"All", q:"", saved:false, list:[], meta:null, loaded:false };
+  let tab = "live";
+  let saved = new Set(), msaved = new Set();
   try { saved = new Set(JSON.parse(localStorage.getItem("uaelive-saved")||"[]")); } catch(e){}
-  try { const f = JSON.parse(localStorage.getItem("uaelive-filters")||"null"); if(f){ Object.assign(state,{city:f.city||"All",type:f.type||"all"}); } } catch(e){}
+  try { msaved = new Set(JSON.parse(localStorage.getItem("uaelive-msaved")||"[]")); } catch(e){}
+  try { const f = JSON.parse(localStorage.getItem("uaelive-filters")||"null"); if(f){ Object.assign(state,{city:f.city||"All",type:f.type||"all"}); if(f.tab==="movies") tab="movies"; if(f.mstatus) mv.status=f.mstatus; } } catch(e){}
 
   const $ = (s)=>document.querySelector(s);
   const esc = (s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -217,6 +260,9 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
 
   function renderStamp(){
     if(!document.getElementById("stamp")) return;
+    $("#n-live").textContent = state.loaded ? upcoming().length : "";
+    $("#n-movies").textContent = mv.loaded ? mv.list.length : "";
+    if(tab==="movies"){ renderMovieStamp(); return; }
     const up = upcoming();
     const m = state.meta;
     let s = "";
@@ -266,22 +312,132 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
     out.innerHTML = Object.keys(groups).sort().map(m=>`<section class="month"><h2>${fmt(m+"-01",{month:"long",year:"numeric"})} <small>${groups[m].length} ${groups[m].length===1?"event":"events"}</small></h2><div class="list">${groups[m].map(row).join("")}</div></section>`).join("");
   }
 
-  function render(){ renderControls(); renderStamp(); renderList(); }
-  function persist(){ try{ localStorage.setItem("uaelive-filters", JSON.stringify({city:state.city,type:state.type})); }catch(e){} }
+  // ---------- Movies ----------
+  const RATING_TBC = /^(18TC|TBC|TC)?$/i;
+  function movieStatus(m){ const t=todayISO(); return (m.status==="now" || (m.releaseDate && m.releaseDate<=t)) ? "now" : "soon"; }
+  function langs(m){ return String(m.language||"").split(",").map(x=>x.trim()).filter(Boolean); }
+  function movieFiltered(){
+    const q = mv.q.trim().toLowerCase();
+    return mv.list.filter(m=>{
+      const st = movieStatus(m);
+      if(mv.status!=="all" && st!==mv.status) return false;
+      if(mv.lang!=="All" && !langs(m).includes(mv.lang)) return false;
+      if(mv.saved && !msaved.has(m.id)) return false;
+      if(q){ const hay=[m.title,m.genre,m.language].join(" ").toLowerCase(); if(!hay.includes(q)) return false; }
+      return true;
+    });
+  }
+  function renderMovieControls(){
+    const all = mv.list;
+    const inStatus = all.filter(m=>mv.status==="all"||movieStatus(m)===mv.status);
+    const S = [["all","All"],["now","Now showing"],["soon","Coming soon"]];
+    $("#m-status").innerHTML = S.map(([k,l])=>`<button class="chip" data-mstatus="${k}" aria-pressed="${mv.status===k}">${l}<span class="n">${k==="all"?all.length:all.filter(m=>movieStatus(m)===k).length}</span></button>`).join("");
+    const counts = {}; inStatus.forEach(m=>langs(m).forEach(l=>counts[l]=(counts[l]||0)+1));
+    const order = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b));
+    if(mv.lang!=="All" && !counts[mv.lang]) order.push(mv.lang);
+    $("#m-lang").innerHTML = [`<option value="All" ${mv.lang==="All"?"selected":""}>All languages (${inStatus.length})</option>`]
+      .concat(order.map(l=>`<option value="${esc(l)}" ${mv.lang===l?"selected":""}>${esc(l)} (${counts[l]||0})</option>`)).join("");
+    $("#m-saved").setAttribute("aria-pressed", String(mv.saved));
+    $("#m-saved").innerHTML = `Saved only<span class="n">${[...msaved].filter(id=>all.some(m=>m.id===id)).length}</span>`;
+  }
+  function renderMovieStamp(){
+    const m = mv.meta; let s="";
+    if(m && m.lastRefreshed){
+      s = `Checked <b>${esc(new Intl.DateTimeFormat("en-GB",{timeZone:TZ,day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(m.lastRefreshed)))}</b> Dubai time`;
+      if(m.lastSummary) s += `<br>${esc(m.lastSummary)}`;
+    } else s = mv.loaded ? "Listings loaded" : "Loading listings…";
+    $("#stamp").innerHTML = s;
+    const now = mv.list.filter(x=>movieStatus(x)==="now").length, soon = mv.list.length-now;
+    const next = mv.list.filter(x=>movieStatus(x)==="soon").sort((a,b)=>a.releaseDate<b.releaseDate?-1:1)[0];
+    $("#tally").innerHTML = mv.loaded ? `<span><b>${now}</b> now showing</span><span><b>${soon}</b> coming soon</span>${next?`<span>Next release: <b>${esc(next.title)}</b>, ${esc(fmt(next.releaseDate,{day:"numeric",month:"short"}))}</span>`:""}` : "";
+  }
+  function movieRow(m){
+    const st = movieStatus(m);
+    const isSaved = msaved.has(m.id);
+    const stub = st==="now"
+      ? `<div class="stub"><span class="now">NOW</span><span class="w">showing</span></div>`
+      : `<div class="stub"><span class="d">${fmt(m.releaseDate,{day:"2-digit"})}</span><span class="w">${fmt(m.releaseDate,{month:"short"})}</span></div>`;
+    const rating = m.rating && !RATING_TBC.test(m.rating) ? `<span class="rating" title="UAE age rating">${esc(m.rating)}</span>` : "";
+    return `<article class="ev">${stub}
+      <div class="main">
+        <div class="meta"><span class="tag movie">Movie</span>${rating}${m.genre?`<span>${esc(m.genre)}</span>`:""}</div>
+        <h3 class="title">${esc(m.title)}</h3>
+        <div class="meta"><span>${esc(m.language||"")}</span>${st==="soon"?`<span>In cinemas ${esc(fmt(m.releaseDate,{weekday:"short",day:"numeric",month:"short"}))}</span>`:""}</div>
+        ${m.note?`<p class="note">${esc(m.note)}</p>`:""}
+      </div>
+      <div class="side"><span class="price">${st==="now"?"In cinemas":"Coming soon"}</span><div class="acts">
+        <button class="btn star" data-msave="${esc(m.id)}" aria-pressed="${isSaved}" aria-label="${isSaved?"Remove from saved":"Save"}: ${esc(m.title)}">${isSaved?"★ Saved":"☆ Save"}</button>
+        ${m.url?`<a class="btn" href="${esc(m.url)}" target="_blank" rel="noopener">${st==="now"?"Showtimes":"Details"} ↗</a>`:""}
+      </div></div>
+    </article>`;
+  }
+  function renderMovieList(){
+    const out = $("#mout");
+    if(!mv.loaded){ if(mv.error) out.innerHTML = `<div class="empty"><b>Movie listings couldn't load.</b><br>${esc(mv.error)}</div>`; return; }
+    const list = movieFiltered();
+    if(!list.length){ out.innerHTML = `<div class="empty"><b>No movies match these filters.</b><br>Try another language or clear the search.</div>`; return; }
+    const now = list.filter(m=>movieStatus(m)==="now").sort((a,b)=>a.title.localeCompare(b.title));
+    const soon = list.filter(m=>movieStatus(m)==="soon").sort((a,b)=>a.releaseDate<b.releaseDate?-1:a.releaseDate>b.releaseDate?1:a.title.localeCompare(b.title));
+    let html = "";
+    if(now.length) html += `<section class="month"><h2>Now showing <small>${now.length} ${now.length===1?"film":"films"}</small></h2><div class="list">${now.map(movieRow).join("")}</div></section>`;
+    const groups = {}; soon.forEach(m=>{ (groups[m.releaseDate.slice(0,7)] ||= []).push(m); });
+    html += Object.keys(groups).sort().map(k=>`<section class="month"><h2>Coming ${fmt(k+"-01",{month:"long",year:"numeric"})} <small>${groups[k].length} ${groups[k].length===1?"film":"films"}</small></h2><div class="list">${groups[k].map(movieRow).join("")}</div></section>`).join("");
+    out.innerHTML = html;
+  }
+  function renderTabs(){
+    ["live","movies"].forEach(t=>{
+      $("#tab-"+t).setAttribute("aria-selected", String(tab===t));
+      $("#view-"+t).hidden = tab!==t;
+    });
+  }
+
+  function render(){ renderTabs(); renderControls(); renderMovieControls(); renderStamp(); renderList(); renderMovieList(); }
+  function persist(){ try{ localStorage.setItem("uaelive-filters", JSON.stringify({city:state.city,type:state.type,tab,mstatus:mv.status})); }catch(e){} }
 
   document.addEventListener("click", ev=>{
     const c = ev.target.closest("[data-city]"); if(c){ state.city=c.dataset.city; persist(); render(); return; }
     const t = ev.target.closest("[data-type]"); if(t){ state.type=t.dataset.type; persist(); render(); return; }
     const s = ev.target.closest("[data-save]");
     if(s){ const id=s.dataset.save; saved.has(id)?saved.delete(id):saved.add(id); try{localStorage.setItem("uaelive-saved",JSON.stringify([...saved]));}catch(e){} render(); return; }
-    if(ev.target.closest("#f-saved")){ state.saved=!state.saved; render(); }
+    if(ev.target.closest("#f-saved")){ state.saved=!state.saved; render(); return; }
+    const tb = ev.target.closest("[data-tab]"); if(tb){ tab=tb.dataset.tab; persist(); render(); window.scrollTo(0,0); return; }
+    const ms = ev.target.closest("[data-mstatus]"); if(ms){ mv.status=ms.dataset.mstatus; persist(); render(); return; }
+    const mk = ev.target.closest("[data-msave]");
+    if(mk){ const id=mk.dataset.msave; msaved.has(id)?msaved.delete(id):msaved.add(id); try{localStorage.setItem("uaelive-msaved",JSON.stringify([...msaved]));}catch(e){} render(); return; }
+    if(ev.target.closest("#m-saved")){ mv.saved=!mv.saved; render(); }
   });
+  document.querySelector(".tabs").addEventListener("keydown", e=>{
+    if(e.key!=="ArrowLeft" && e.key!=="ArrowRight") return;
+    tab = tab==="live" ? "movies" : "live"; persist(); render(); $("#tab-"+tab).focus();
+  });
+  $("#m-lang").addEventListener("change", e=>{ mv.lang=e.target.value; render(); });
+  let mqt; $("#mq").addEventListener("input", e=>{ clearTimeout(mqt); mqt=setTimeout(()=>{ mv.q=e.target.value; renderMovieList(); },120); });
   $("#f-when").addEventListener("change", e=>{ state.when=e.target.value; render(); });
   let qt; $("#q").addEventListener("input", e=>{ clearTimeout(qt); qt=setTimeout(()=>{ state.q=e.target.value; renderList(); },120); });
 
   render();
 
   const FEED = "__FEED_URL__";
+  const MOVIES_FEED = FEED.replace(/events\.json$/, "movies.json");
+  function loadMovies(doc, from){
+    if(!doc || !Array.isArray(doc.movies)) return false;
+    mv.list = doc.movies.filter(m=>m.title && (m.status==="now" || m.releaseDate));
+    mv.meta = {lastRefreshed: doc.updated, lastSummary: (from==="cache"?"Offline copy · ":"") + (doc.summary||"")};
+    mv.loaded = true; mv.error = null; render(); return true;
+  }
+  let mcached = null;
+  try { mcached = JSON.parse(localStorage.getItem("uaelive-movies")||"null"); } catch(e){}
+  const mbase = mcached && window.MOVIE_SNAPSHOT && mcached.updated < window.MOVIE_SNAPSHOT.updated ? window.MOVIE_SNAPSHOT : (mcached || window.MOVIE_SNAPSHOT);
+  loadMovies(mbase, mcached===mbase ? "cache" : "snapshot");
+  async function refreshMovies(){
+    const before = new Set(mv.list.map(m=>m.id));
+    const r = await fetch(MOVIES_FEED + "?t=" + Date.now(), {cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const doc = await r.json();
+    if(!loadMovies(doc, "live")) return [0,0];
+    try{ localStorage.setItem("uaelive-movies", JSON.stringify(doc)); }catch(e){}
+    return [mv.list.filter(m=>!before.has(m.id)).length, [...before].filter(id=>!mv.list.some(m=>m.id===id)).length];
+  }
   function load(doc, from){
     if(!doc || !Array.isArray(doc.events)) return false;
     state.events = doc.events.filter(e=>e.date && e.title);
@@ -301,20 +457,26 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
     const b = document.getElementById("refresh"); if(b){ b.disabled = true; b.textContent = "Checking…"; }
     const before = new Set(state.events.map(e=>e.id));
     const beforeStamp = state.meta && state.meta.lastRefreshed;
+    const beforeMStamp = mv.meta && mv.meta.lastRefreshed;
+    const mp = refreshMovies().then(x=>({ok:true,x}), e=>({ok:false}));
     try{
       const r = await fetch(FEED + "?t=" + Date.now(), {cache:"no-store"});
       if(!r.ok) throw new Error("HTTP " + r.status);
       const doc = await r.json();
       if(load(doc, "live")) {
         try{ localStorage.setItem("uaelive-feed", JSON.stringify(doc)); }catch(e){}
-        const added = state.events.filter(e=>!before.has(e.id)).length;
-        const removed = [...before].filter(id=>!state.events.some(e=>e.id===id)).length;
+        let added = state.events.filter(e=>!before.has(e.id)).length;
+        let removed = [...before].filter(id=>!state.events.some(e=>e.id===id)).length;
+        const mr = await mp;
+        if(mr.ok && tab==="movies"){ added = mr.x[0]; removed = mr.x[1]; }
         if(added || removed) note(`Updated at ${clock()} · ${added} new, ${removed} removed`);
-        else if(doc.updated !== beforeStamp) note(`Updated at ${clock()} · details changed`);
+        else if(tab==="movies" ? (mv.meta && mv.meta.lastRefreshed) !== beforeMStamp : doc.updated !== beforeStamp) note(`Updated at ${clock()} · details changed`);
         else note(`Up to date · checked ${clock()}`);
       }
     }catch(e){
+      await mp;
       note(`Couldn't connect · showing saved copy`, true);
+      if(!mv.loaded){ mv.error = "No connection, and no saved copy yet. Connect to the internet and tap Refresh."; renderMovieList(); }
       if(!state.loaded){ state.error = "No connection, and no saved copy yet. Connect to the internet and tap Refresh."; render(); }
       else if(state.meta && !/^Offline/.test(state.meta.lastSummary||"")) { state.meta.lastSummary = "Offline copy · " + (state.meta.lastSummary||""); renderStamp(); }
     }finally{ if(b){ b.disabled = false; b.textContent = "Refresh"; } }
