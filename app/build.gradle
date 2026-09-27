@@ -1,0 +1,35 @@
+plugins { id "com.android.application" }
+
+android {
+    namespace "ae.live.tracker"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "ae.live.tracker"
+        minSdk 26
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv("VERSION_CODE") ?: "1")
+        versionName "1.0." + (System.getenv("VERSION_CODE") ?: "1")
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "uaelive-app"
+            keyAlias "uaelive"
+            keyPassword "uaelive-app"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
