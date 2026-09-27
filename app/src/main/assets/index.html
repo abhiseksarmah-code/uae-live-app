@@ -43,6 +43,8 @@ h1 .amp{color:var(--comedy)}
 .stamp{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;line-height:1.6}
 .stampwrap{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 @media (max-width:760px){.stampwrap{align-items:flex-start}}
+.rstatus{font-family:var(--mono);font-size:12px;color:var(--concert);min-height:1em}
+.rstatus.warn{color:var(--comedy)}
 .stamp b{color:var(--ink);font-weight:600}
 .tally{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 0;font-family:var(--mono);font-size:13px;color:var(--muted)}
 .tally span b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -106,7 +108,7 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
          <p style="margin:6px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted)">Created by Abhisek</p>
       <p class="sub">Upcoming concerts and stand-up comedy in Dubai, Abu Dhabi and Sharjah, checked against listings every morning.</p>
     </div>
-    <div class="stampwrap"><div class="stamp" id="stamp">Loading listings…</div><button class="btn" id="refresh" type="button">Refresh</button></div>
+    <div class="stampwrap"><div class="stamp" id="stamp">Loading listings…</div><button class="btn" id="refresh" type="button">Refresh</button><div class="rstatus" id="rstatus" role="status" aria-live="polite"></div></div>
   </header>
   <div class="tally" id="tally"></div>
 
@@ -290,19 +292,34 @@ footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid 
   try { cached = JSON.parse(localStorage.getItem("uaelive-feed")||"null"); } catch(e){}
   const base = cached && window.SNAPSHOT && cached.updated < window.SNAPSHOT.updated ? window.SNAPSHOT : (cached || window.SNAPSHOT);
   load(base, cached===base ? "cache" : "snapshot");
-  async function refresh(){
+  function note(msg, warn){
+    const el = document.getElementById("rstatus"); if(!el) return;
+    el.textContent = msg; el.className = "rstatus" + (warn ? " warn" : "");
+  }
+  const clock = () => new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date());
+  async function refresh(manual){
     const b = document.getElementById("refresh"); if(b){ b.disabled = true; b.textContent = "Checking…"; }
+    const before = new Set(state.events.map(e=>e.id));
+    const beforeStamp = state.meta && state.meta.lastRefreshed;
     try{
       const r = await fetch(FEED + "?t=" + Date.now(), {cache:"no-store"});
       if(!r.ok) throw new Error("HTTP " + r.status);
       const doc = await r.json();
-      if(load(doc, "live")) { try{ localStorage.setItem("uaelive-feed", JSON.stringify(doc)); }catch(e){} }
+      if(load(doc, "live")) {
+        try{ localStorage.setItem("uaelive-feed", JSON.stringify(doc)); }catch(e){}
+        const added = state.events.filter(e=>!before.has(e.id)).length;
+        const removed = [...before].filter(id=>!state.events.some(e=>e.id===id)).length;
+        if(added || removed) note(`Updated at ${clock()} · ${added} new, ${removed} removed`);
+        else if(doc.updated !== beforeStamp) note(`Updated at ${clock()} · details changed`);
+        else note(`Up to date · checked ${clock()}`);
+      }
     }catch(e){
+      note(`Couldn't connect · showing saved copy`, true);
       if(!state.loaded){ state.error = "No connection, and no saved copy yet. Connect to the internet and tap Refresh."; render(); }
       else if(state.meta && !/^Offline/.test(state.meta.lastSummary||"")) { state.meta.lastSummary = "Offline copy · " + (state.meta.lastSummary||""); renderStamp(); }
     }finally{ if(b){ b.disabled = false; b.textContent = "Refresh"; } }
   }
-  document.getElementById("refresh").addEventListener("click", refresh);
+  document.getElementById("refresh").addEventListener("click", ()=>refresh(true));
   document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refresh(); });
   refresh();
 })();
