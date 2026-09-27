@@ -1,0 +1,73 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["data/**", "README.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack uploaded zip (first run only)
+        run: |
+          if [ -f uae-live-app.zip ]; then
+            unzip -o -q uae-live-app.zip -x '.github/*'
+            git rm -q uae-live-app.zip
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Unpack app source from uae-live-app.zip"
+            git push
+          fi
+          test -f app/build.gradle
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Point the app at this repo's event feed
+        run: |
+          FEED="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/data/events.json"
+          sed -i "s|__FEED_URL__|${FEED}|" app/src/main/assets/index.html
+          grep -q "$FEED" app/src/main/assets/index.html
+
+      - name: Refresh the offline snapshot from data/events.json
+        run: |
+          printf 'window.SNAPSHOT=' > app/src/main/assets/snapshot.js
+          cat data/events.json >> app/src/main/assets/snapshot.js
+          printf ';\n' >> app/src/main/assets/snapshot.js
+
+      - name: Build signed APK
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: gradle :app:assembleRelease --no-daemon
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/release/app-release.apk LiveInTheEmirates.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LiveInTheEmirates-apk
+          path: LiveInTheEmirates.apk
+
+      - name: Publish as the "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Live in the Emirates (build ${{ github.run_number }})
+          body: |
+            Download **LiveInTheEmirates.apk** below and open it on your Android phone.
+          files: LiveInTheEmirates.apk
+          make_latest: true
